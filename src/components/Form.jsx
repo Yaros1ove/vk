@@ -2,34 +2,32 @@ import React, { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import * as yup from 'yup'
 import { yupResolver } from '@hookform/resolvers/yup'
-import FormSelect from '../UI/Selects/FormSelect'
 import DateSelect from '../UI/Selects/DateSelect'
 import TimeSelect from '../UI/Selects/TimeSelect'
+import FormInput from '../UI/Inputs/FormInput'
+import { Button } from '@mui/material'
+import MySelect from '../UI/Selects/MySelect'
+import getDate from '../Functions/getDate'
 
 const schema = yup.object({
   tower: yup.string().required('Выберите башню'),
-  floor: yup.number().positive('Выберите этаж').required('Выберите этаж'),
-  negotiation: yup.number().positive('Выберите переговорную').required('Выберите переговорную'),
-  date: yup.date().required('Выберите дату'),
-  from: yup.number().required('Выберите время начала'),
-  to: yup.number().required('Выберите время окончания'),
+  floor: yup.number().required('Выберите этаж'),
+  negotiation: yup.number().required('Выберите переговорную'),
+  date: yup.date().typeError('').min(getDate('today'), 'Нельзя выбрать дату раньше текущего дня').max(getDate('yearAfter'), 'Время выбора даты ограничивается годом вперед').required('Выберите дату'),
+  from: yup.date().typeError('').required('Выберите время начала'),
+  to: yup.date().typeError('').required('Выберите время окончания'),
+  comment: yup.string(),
 })
 
 
-const towers = [
-  { value: 'А', label: 'А' },
-  { value: 'Б', label: 'Б' },
-]
+const towers = ['А', 'Б']
 
 
 const floors = []
 const minFloor = 3, maxFloor = 27
 
 for (let i = minFloor; i <= maxFloor; i++) {
-  floors.push({
-    value: i,
-    label: i,
-  })
+  floors.push(i)
 }
 
 
@@ -37,10 +35,7 @@ const negotiations = []
 const minNegotiation = 1, maxNegotiation = 10
 
 for (let i = minNegotiation; i <= maxNegotiation; i++) {
-  negotiations.push({
-    value: i,
-    label: i,
-  })
+  negotiations.push(i)
 }
 
 function Form() {
@@ -57,45 +52,50 @@ function Form() {
   })
 
   const onReset = () => reset({
-    tower: '',
-    floor: 0,
-    negotiation: 0,
-    date: new Date(),
-    from: new Date(),
-    to: NaN,
+    tower: null,
+    floor: null,
+    negotiation: null,
+    date: null,
+    from: null,
+    to: null,
+    comment: '',
   })
 
   const onSubmit = (data) => {
+
     setData({ ...data })
     onReset()
     console.log(data)
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
+    <form className='form' onSubmit={handleSubmit(onSubmit)}>
 
-      <FormSelect
+      <MySelect
         name='tower'
-        labelName='Башня'
+        label='Башня'
         options={towers}
         control={control}
         error={errors.tower}
+        className={'select'}
       />
 
-      <FormSelect
+      <MySelect
         name='floor'
-        labelName='Этаж'
+        label='Этаж'
         options={floors}
         control={control}
         error={errors.floor}
+        className={'select'}
       />
 
-      <FormSelect
+      <MySelect
         name='negotiation'
-        labelName='Переговорная'
+        label='Номер переговорной'
         options={negotiations}
         control={control}
         error={errors.negotiation}
+        className={'select'}
       />
 
       <DateSelect
@@ -103,24 +103,53 @@ function Form() {
         label='Дата'
         control={control}
         error={errors.date}
+        className={'dateSelect'}
       />
 
       <TimeSelect
         name='from'
         label='C'
         control={control}
-        error={errors.from}
+        className={'timeSelect'}
       />
 
       <TimeSelect
         name='to'
         label='До'
         control={control}
-        error={errors.to}
+        className={'timeSelect'}
       />
 
-      <button type='submit'>Отправить</button>
-      <button type='button' onClick={onReset}>Очистить</button>
+      <p className='error'>
+        <span className='error__time'>{errors.from ? errors.from.message : ''}</span>
+        <span className='error__time'>{errors.to ? errors.to.message : ''}</span>
+      </p>
+
+      <FormInput
+        name='comment'
+        label='Комментарий'
+        control={control}
+        className={'comment'}
+      />
+
+      <div className='buttons'>
+        <Button
+          variant='outlined'
+          type='button'
+          onClick={onReset}
+        >
+          Очистить
+        </Button>
+
+        <Button
+          variant='contained'
+          type='submit'
+        >
+          Отправить
+        </Button>
+      </div>
+
+      {/* {<pre>{JSON.stringify(errors, null, 2)}</pre>} */}
       {data && <pre>{JSON.stringify(data, null, 2)}</pre>}
     </form>
   )

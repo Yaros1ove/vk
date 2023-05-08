@@ -3,30 +3,42 @@ import { useController } from 'react-hook-form'
 import { LocalizationProvider, TimePicker } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 
-function TimeSelect({ name, label, control, error }) {
+
+function TimeSelect({ name, label, control, className }) {
 
   const {
     field: {
-      value: optionValue,
-      onChange: optionOnChange,
-      ...restOptionFields
+      value: timeValue,
+      onChange: timeOnChange,
+      ...restTimeFields
     }
   } = useController({ name: name, control })
+
+  const showValue = timeValue || null
 
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns}>
       <TimePicker
         label={label}
-        slotProps={{
-          actionBar: {
-            actions: ['clear']
-          }
+
+        sx={{
+          mt: '10px',
+          mb: '10px',
         }}
+        className={className}
+
         ampm={false}
-        onAccept={time => optionOnChange(time.getTime())}
-        {...restOptionFields}
+        timeSteps={{
+          minutes: 1,
+        }}
+
+        value={showValue}
+        onChange={time => {
+          timeOnChange(time)
+        }}
+
+        {...restTimeFields}
       />
-      {error && <p className='error'>{error.message}</p>}
     </LocalizationProvider>
   )
 }

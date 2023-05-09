@@ -1,9 +1,11 @@
 import React from 'react'
+
 import { useController } from 'react-hook-form'
-import { TextField } from '@mui/material'
+
+import { FormControl, TextField } from '@mui/material'
 
 
-function FormInput({ name, label, control, className }) {
+function FormInput({ name, label, control }) {
 
   const {
     field: {
@@ -16,19 +18,19 @@ function FormInput({ name, label, control, className }) {
   const showValue = inputValue || ''
 
   return (
-    <TextField
-      className={className}
-      sx={{
-        mt: '10px',
-        mb: '10px',
-      }}
-      label={label}
-      value={showValue}
-      multiline={true}
-      rows={2}
-      onChange={text => inputOnChange(text)}
-      {...restInputFields}
-    />
+    <FormControl sx={{ mt: '10px', mb: '10px' }} fullWidth>
+      <TextField
+        label={label}
+
+        multiline={true}
+        rows={2}
+        
+        value={showValue}
+        onChange={text => inputOnChange(text)}
+
+        {...restInputFields}
+      />
+    </FormControl>
   )
 }
 

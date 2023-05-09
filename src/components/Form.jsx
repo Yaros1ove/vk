@@ -1,46 +1,35 @@
 import React, { useState } from 'react'
+
 import { useForm } from 'react-hook-form'
-import * as yup from 'yup'
 import { yupResolver } from '@hookform/resolvers/yup'
+import schema from '../Utils/yup'
+
 import DateSelect from '../UI/Selects/DateSelect'
 import TimeSelect from '../UI/Selects/TimeSelect'
 import FormInput from '../UI/Inputs/FormInput'
-import { Button } from '@mui/material'
 import MySelect from '../UI/Selects/MySelect'
-import getDate from '../Functions/getDate'
+import { Button, FormHelperText, Typography } from '@mui/material'
 
-const schema = yup.object({
-  tower: yup.string().required('Выберите башню'),
-  floor: yup.number().required('Выберите этаж'),
-  negotiation: yup.number().required('Выберите переговорную'),
-  date: yup.date().typeError('').min(getDate('today'), 'Нельзя выбрать дату раньше текущего дня').max(getDate('yearAfter'), 'Время выбора даты ограничивается годом вперед').required('Выберите дату'),
-  from: yup.date().typeError('').required('Выберите время начала'),
-  to: yup.date().typeError('').required('Выберите время окончания'),
-  comment: yup.string(),
-})
+import createNumbersArray from '../Utils/Functions/createNumbersArray'
+import validateForm from '../Utils/Functions/validateForm'
+import createFormDate from '../Utils/Functions/createFormDate'
 
-
+// initializing options arrays for selects
 const towers = ['А', 'Б']
 
-
-const floors = []
 const minFloor = 3, maxFloor = 27
+const floors = createNumbersArray(minFloor, maxFloor)
 
-for (let i = minFloor; i <= maxFloor; i++) {
-  floors.push(i)
-}
-
-
-const negotiations = []
 const minNegotiation = 1, maxNegotiation = 10
+const negotiations = createNumbersArray(minNegotiation, maxNegotiation)
 
-for (let i = minNegotiation; i <= maxNegotiation; i++) {
-  negotiations.push(i)
-}
 
 function Form() {
 
-  const [data, setData] = useState()
+  const [data, setData] = useState(null)
+  const [error, setError] = useState(null)
+  
+  const isError = !!error
 
   const {
     handleSubmit,
@@ -48,24 +37,44 @@ function Form() {
     control,
     reset,
   } = useForm({
+    mode: 'all',
     resolver: yupResolver(schema),
   })
 
-  const onReset = () => reset({
-    tower: null,
-    floor: null,
-    negotiation: null,
-    date: null,
-    from: null,
-    to: null,
-    comment: '',
-  })
+  const onReset = () => {
 
-  const onSubmit = (data) => {
+    setData(null)
+    setError(null)
 
-    setData({ ...data })
-    onReset()
-    console.log(data)
+    reset()
+  }
+
+  const onSubmit = (form) => {
+    const date = form.date
+
+    // merging date and time
+    const from = createFormDate({ date: date, time: form.from })
+    const to = createFormDate({ date: date, time: form.to })
+
+    delete form.date
+    form.from = from
+    form.to = to
+
+    // post-validation for [FROM before TO]
+    const validation = validateForm(form)
+
+    if (validation.error) {
+      setError(validation.error)
+      return
+    }
+
+
+    setData({ ...form })
+    setError(null)
+
+    reset()
+
+    console.log(JSON.stringify(form, null, 2))
   }
 
   return (
@@ -76,8 +85,6 @@ function Form() {
         label='Башня'
         options={towers}
         control={control}
-        error={errors.tower}
-        className={'select'}
       />
 
       <MySelect
@@ -85,8 +92,6 @@ function Form() {
         label='Этаж'
         options={floors}
         control={control}
-        error={errors.floor}
-        className={'select'}
       />
 
       <MySelect
@@ -94,45 +99,39 @@ function Form() {
         label='Номер переговорной'
         options={negotiations}
         control={control}
-        error={errors.negotiation}
-        className={'select'}
       />
 
       <DateSelect
         name='date'
         label='Дата'
         control={control}
-        error={errors.date}
-        className={'dateSelect'}
       />
 
       <TimeSelect
         name='from'
         label='C'
         control={control}
-        className={'timeSelect'}
       />
 
       <TimeSelect
         name='to'
         label='До'
         control={control}
-        className={'timeSelect'}
       />
 
-      <p className='error'>
-        <span className='error__time'>{errors.from ? errors.from.message : ''}</span>
-        <span className='error__time'>{errors.to ? errors.to.message : ''}</span>
-      </p>
+      {/* Error of post-validation */}
+      <FormHelperText sx={{ width: '100%', textAlign: 'center' }} error={isError}>
+        {error}
+      </FormHelperText>
 
       <FormInput
         name='comment'
         label='Комментарий'
         control={control}
-        className={'comment'}
+        error={errors.comment}
       />
 
-      <div className='buttons'>
+      <div className='formButtons'>
         <Button
           variant='outlined'
           type='button'
@@ -149,8 +148,17 @@ function Form() {
         </Button>
       </div>
 
-      {/* {<pre>{JSON.stringify(errors, null, 2)}</pre>} */}
-      {data && <pre>{JSON.stringify(data, null, 2)}</pre>}
+      {/* Printing form fields for visibility */}
+      {data && Object.keys(data).map(key => {
+        return <Typography variant='body1' key={key}>
+          {`${key}: ${data[key]}`}
+        </Typography>
+      })}
+
+      {data && <Typography align='center' variant='body2'>
+        Продублировано в консоль в формате JSON
+      </Typography>}
+
     </form>
   )
 }

@@ -1,0 +1,45 @@
+// colors
+$COLOR_PRIMARY: #2196f3
+$COLOR_PRIMARY_DARK: #1769aa
+
+// sizes
+$SPACE_DEFAULT: 10px
+$SPACE_DOUBLE: 20px
+
+$VIEW_WIDTH: 100vw
+$VIEW_HEIGHT: 100vh
+
+$WIDTH_DESKTOP: 600px
+$WIDTH_TABLET: 400px
+$WIDTH_MOBILE: 250px
+
+$DESKTOP_MIN_WIDTH: 800px
+$TABLET_MIN_WIDTH: 500px
+
+@mixin form-desktop-size
+  @media screen and (min-width: $DESKTOP_MIN_WIDTH)
+    width: $WIDTH_DESKTOP
+  
+@mixin form-tablet-size
+  @media screen and (min-width: $TABLET_MIN_WIDTH) and (max-width: $DESKTOP_MIN_WIDTH)
+    width: $WIDTH_TABLET
+
+@mixin form-mobile-size
+  @media screen and (max-width: $TABLET_MIN_WIDTH)
+    width: $WIDTH_MOBILE
+
+// styles
+@mixin border-default
+  border: 2px solid $COLOR_PRIMARY
+  border-radius: 5px
+
+// positioning
+@mixin center-column
+  display: flex
+  flex-direction: column
+  justify-content: center
+  align-items: center
+
+@mixin flex-between
+  display: flex
+  justify-content: space-between

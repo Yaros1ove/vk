@@ -1,44 +1,33 @@
+@use './Constants/constants.sass' as *
 @import './reset.css'
 
 .App
-  width: 100vw
-  min-height: 100vh
+  width: $VIEW_WIDTH
+  min-height: $VIEW_HEIGHT
 
-  display: flex
-  flex-direction: column
-  justify-content: center
-  align-items: center
-
-  overflow: visible
-
+  @include center-column
 
 .formHeader
-  color: #1769aa
+  color: $COLOR_PRIMARY_DARK
+  
+  text-align: center
+
+  @include form-desktop-size
+  @include form-tablet-size
+  @include form-mobile-size
+  
 
 .form
-  width: 600px
+  @include border-default
 
-  border: 2px solid #2196f3
-  border-radius: 5px
+  margin: $SPACE_DOUBLE auto
+  padding: $SPACE_DEFAULT $SPACE_DOUBLE
 
-  margin: 20px auto
-  padding: 10px 20px
+  @include form-desktop-size
+  @include form-tablet-size
+  @include form-mobile-size
 
+.formButtons
+  @include flex-between
 
-.dateSelect
-  width: 100%
-
-.timeSelect
-  width: 50%
-
-.comment
-  width: 100%
-
-.error
-  color: red
-
-  display: flex
-
-
-  &__time
-    width: 50%
+  margin: $SPACE_DEFAULT auto

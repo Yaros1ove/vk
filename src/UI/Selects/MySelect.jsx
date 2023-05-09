@@ -1,34 +1,47 @@
 import React from 'react'
-import { Select, MenuItem, FormControl, InputLabel } from '@mui/material'
+
 import { useController } from 'react-hook-form'
 
-function MySelect({ name, label, options, control, error }) {
+import { Select, MenuItem, FormControl, InputLabel, FormHelperText } from '@mui/material'
+
+function MySelect({ name, label, options, control }) {
 
   const {
     field: {
       value: optionValue,
       onChange: optionOnChange,
       ...restOptionFields
-    }
+    },
+    fieldState: {
+      invalid,
+      error,
+    },
   } = useController({ name: name, control })
 
   const showValue = optionValue || ''
 
   return (
-    <FormControl sx={{ mt: '10px' }} fullWidth>
+    <FormControl sx={{ mt: '10px', mb: '10px' }} fullWidth error={false}>
+
       <InputLabel id='selectLabel'>{label}</InputLabel>
+
       <Select
-        sx={{ mb: '10px' }}
         labelId='selectLabel'
         label={label}
+
+        defaultValue={''}
         value={showValue}
-        defaultValue=''
         onChange={option => optionOnChange(option ? option.target.value : option)}
+
         {...restOptionFields}
       >
         {options.map(option => <MenuItem value={option} key={option}>{option}</MenuItem>)}
       </Select>
-      {error && <p className='error'>{error.message}</p>}
+
+      <FormHelperText error={invalid}>
+        {error?.message}
+      </FormHelperText>
+      
     </FormControl>
   )
 }
